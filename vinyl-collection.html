@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>The Record Room</title>
+<style>
+:root{--gold:#c9a84c;--cream:#f5f0e8;--dark:#0d0d1a;--mid:#2a2a3e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(160deg,#0d0d1a 0%,#1a1a2e 50%,#0a0a1a 100%);font-family:Georgia,serif;color:var(--cream);overflow-x:hidden}
+#hdr{border-bottom:1px solid rgba(201,168,76,.2);padding:1.2rem 1.2rem 0;position:sticky;top:0;z-index:50;backdrop-filter:blur(8px);background:rgba(13,13,26,.85)}
+.eye{font-size:.6rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;margin-bottom:3px}
+h1{font-size:clamp(1.3rem,4vw,1.9rem);font-weight:normal;letter-spacing:.05em;color:var(--cream)}
+#sub{font-size:.68rem;color:rgba(245,240,232,.4);margin-top:3px;letter-spacing:.1em}
+#hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem;flex-wrap:wrap}
+#tabs{display:flex;flex-wrap:wrap;margin-top:1rem}
+.tab{background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(245,240,232,.4);padding:.5rem .9rem;cursor:pointer;font-family:inherit;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;transition:all .2s}
+.tab.active{border-bottom-color:var(--gold);color:var(--gold)}
+.btn-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.bgold{background:var(--gold);color:var(--dark);border:none;padding:.42rem 1rem;cursor:pointer;font-family:inherit;font-size:.78rem;font-weight:bold;white-space:nowrap;transition:background .3s}
+.ghost{background:transparent;border:1px solid rgba(201,168,76,.5);color:var(--gold);padding:.42rem .8rem;cursor:pointer;font-family:inherit;font-size:.72rem;letter-spacing:.08em;white-space:nowrap;transition:all .2s}
+.ghost:hover{background:var(--gold);color:var(--dark)}
+#add-form{display:none;margin-top:.8rem;padding:.9rem;background:rgba(42,42,62,.95);border:1px solid rgba(201,168,76,.3);flex-wrap:wrap;gap:.6rem;align-items:flex-end}
+#add-form.open{display:flex}
+.ff{display:flex;flex-direction:column;gap:3px;flex:1 1 140px}
+.fl{font-size:.58rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase}
+input,select{background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.35);color:var(--cream);padding:.4rem .65rem;font-family:inherit;font-size:.82rem;outline:none;width:100%}
+select option{background:#1a1a2e}
+#main{max-width:820px;margin:0 auto;padding:1.2rem}
+.sh{font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);font-weight:normal;margin:0 0 1rem;padding-bottom:.45rem;border-bottom:1px solid rgba(201,168,76,.2)}
+.ab{margin-bottom:1.2rem}
+.an{font-size:.72rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;margin-bottom:.25rem}
+.ar{display:flex;align-items:baseline;gap:.4rem}
+.ad{color:rgba(201,168,76,.35);font-size:.62rem}
+.abtn{background:transparent;border:none;color:rgba(245,240,232,.78);font-size:.87rem;cursor:pointer;font-family:inherit;padding:0;text-align:left;line-height:1.85;transition:color .15s}
+.abtn:hover{color:var(--cream)}
+.wa{display:flex;gap:.4rem;margin-top:.18rem;padding-left:.45rem}
+.bs{background:var(--gold);color:var(--dark);border:1px solid var(--gold);padding:.12rem .5rem;font-size:.6rem;letter-spacing:.08em;cursor:pointer;font-family:inherit;transition:all .15s}
+.bg2{background:transparent;color:rgba(201,168,76,.6);border:1px solid rgba(201,168,76,.3)}
+.bg2:hover{border-color:var(--gold);color:var(--gold)}
+#modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.87);align-items:center;justify-content:center;padding:1rem}
+#modal-overlay.open{display:flex}
+#modal{background:var(--mid);border:1px solid rgba(201,168,76,.35);max-width:520px;width:100%;padding:1.6rem;position:relative;max-height:85vh;overflow-y:auto}
+#modal-close{position:absolute;top:.9rem;right:.9rem;background:transparent;border:none;color:var(--gold);font-size:1.1rem;cursor:pointer}
+#modal-artist{font-size:.6rem;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
+#modal-album{font-size:1.1rem;font-weight:normal;color:var(--cream);margin-bottom:.9rem}
+#modal-body{border-top:1px solid rgba(201,168,76,.2);padding-top:.9rem;font-size:.87rem;line-height:1.82;color:rgba(245,240,232,.82)}
+.panel{background:rgba(42,42,62,.5);border:1px solid rgba(201,168,76,.18);padding:1.2rem;min-height:120px;line-height:1.85;font-size:.87rem;color:rgba(245,240,232,.82);white-space:pre-wrap}
+.ph{color:rgba(245,240,232,.28);font-style:italic}
+.sr{display:flex;align-items:center;gap:.6rem}
+.sp{width:14px;height:14px;border:2px solid rgba(201,168,76,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.st{color:rgba(245,240,232,.35);font-size:.8rem;font-style:italic}
+.sc{display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem;padding:.7rem .85rem;margin-bottom:.4rem;background:rgba(42,42,62,.48);border:1px solid rgba(201,168,76,.14);flex-wrap:wrap}
+.si{flex:1;min-width:150px}
+.sar{font-size:.68rem;color:var(--gold);letter-spacing:.1em;margin-bottom:2px}
+.sal{font-size:.87rem;color:var(--cream);margin-bottom:3px}
+.srs{font-size:.74rem;color:rgba(245,240,232,.48);line-height:1.5}
+.sac{display:flex;align-items:center}
+.bw{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:.26rem .65rem;cursor:pointer;font-family:inherit;font-size:.66rem;letter-spacing:.08em;white-space:nowrap;transition:all .2s}
+.bw:hover{background:var(--gold);color:var(--dark)}
+.bdo{font-size:.6rem;letter-spacing:.1em;color:rgba(245,240,232,.28)}
+.bdw{font-size:.6rem;letter-spacing:.1em;color:var(--gold)}
+.pb{background:transparent;border:1px solid rgba(201,168,76,.32);color:rgba(245,240,232,.52);padding:.32rem .75rem;cursor:pointer;font-family:inherit;font-size:.7rem;transition:all .2s}
+.pb:hover,.pb.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.1)}
+.pr{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.1rem}
+.ir{display:flex;gap:.6rem;margin-bottom:1.1rem}
+.ir input{flex:1}
+.rr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;flex-wrap:wrap;gap:.6rem}
+.rl{font-size:.6rem;letter-spacing:.2em;color:rgba(245,240,232,.38);text-transform:uppercase}
+.tc{display:none}.tc.active{display:block}
+.hint{color:rgba(245,240,232,.48);font-size:.83rem;margin-bottom:.9rem;line-height:1.7}
+#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:300;padding:.7rem 1.3rem;font-family:Georgia,serif;font-size:.83rem;letter-spacing:.04em;white-space:nowrap;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+#toast.ok{background:#1a3a1a;border:1px solid #2a6;color:#8f8;display:block}
+#toast.err{background:#3a1a1a;border:1px solid #a22;color:#f88;display:block}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <div style="max-width:820px;margin:0 auto">
+    <div id="hdr-top">
+      <div>
+        <div class="eye">&#9670; Dan's Vinyl Archive &#9670;</div>
+        <h1>The Record Room</h1>
+        <div id="sub"></div>
+      </div>
+      <div class="btn-row">
+        <button class="bgold" id="save-btn" onclick="handleSave()">&#128190; Save</button>
+        <button class="ghost" id="add-bar" onclick="toggleAdd()">+ Add</button>
+      </div>
+    </div>
+    <div id="add-form">
+      <div class="ff"><label class="fl">Artist</label><input id="aa" placeholder="e.g. Neil Young"></div>
+      <div class="ff"><label class="fl">Album</label><input id="ab" placeholder="e.g. Harvest"></div>
+      <div class="ff" style="flex:0 1 auto"><label class="fl">Add to</label>
+        <select id="at"><option value="collection">Collection</option><option value="wishlist">Wish List</option></select>
+      </div>
+      <button class="bgold" onclick="submitAdd()">Add</button>
+    </div>
+    <div id="tabs">
+      <button class="tab active" onclick="switchTab('collection',this)">Collection</button>
+      <button class="tab" onclick="switchTab('wishlist',this)">Wish List</button>
+      <button class="tab" onclick="switchTab('suggestions',this)">Suggestions</button>
+      <button class="tab" onclick="switchTab('mood',this)">Mood Picker</button>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="tab-collection" class="tc active"><div class="sh" id="ch"></div><div id="cl"></div></div>
+  <div id="tab-wishlist" class="tc"><div class="sh" id="wh"></div><div id="wl"></div></div>
+  <div id="tab-suggestions" class="tc">
+    <div class="sh">Ask for Something Specific</div>
+    <p class="hint">Try "suggest some funk albums", "more jazz like Brubeck", or "heavy 70s records".</p>
+    <div class="ir"><input id="ti" placeholder="e.g. suggest some funk albums&#8230;"><button class="bgold" onclick="fetchTargeted()">Ask &#9654;</button></div>
+    <div id="tr" style="margin-bottom:1.4rem"></div>
+    <div class="rr"><div class="rl">General Suggestions</div><button class="ghost" onclick="fetchGeneral()">&#8635; Refresh</button></div>
+    <div id="gr" class="panel"><span class="ph">Your personalized suggestions will appear here&#8230;</span></div>
+  </div>
+  <div id="tab-mood" class="tc">
+    <div class="sh">What Are You Feeling?</div>
+    <p class="hint">Describe your mood &#8212; "fire guitar solo", "late night melancholy", "cooking dinner with friends".</p>
+    <div class="pr" id="presets"></div>
+    <div class="ir"><input id="mi" placeholder="Or type anything&#8230;"><button class="bgold" onclick="fetchMood()">Spin It &#9654;</button></div>
+    <div id="mr" class="panel"><span class="ph">Tell me your mood and I will find the perfect record&#8230;</span></div>
+  </div>
+</div>
+
+<div id="modal-overlay" onclick="closeModal()">
+  <div id="modal" onclick="event.stopPropagation()">
+    <button id="modal-close" onclick="closeModal()">&#10005;</button>
+    <div id="modal-artist"></div>
+    <div id="modal-album"></div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Default Data ──────────────────────────────────────────────────────────────
+var IC=[["Alice Cooper","Welcome to My Nightmare"],["Allman Brothers Band","At Fillmore East"],["America","Now Press Play (Greatest Hits)"],["Band, The","The Best of The Band"],["Beatles, The","Abbey Road"],["Beatles, The","Magical Mystery Tour"],["Beatles, The","Revolver"],["Beatles, The","Rubber Soul"],["Beatles, The","Sgt. Pepper's Lonely Hearts Club Band"],["Beatles, The","White Album"],["Billy Joel","Greatest Hits Volume I and Volume II"],["Black Sabbath","Master of Reality"],["Black Sabbath","Paranoid"],["Black Sabbath","Sabotage"],["Black Sabbath","Volume 4"],["Bowie, David","Let's Dance"],["Bowie, David","The Rise and Fall of Ziggy Stardust and the Spiders from Mars"],["Brubeck, Dave","Time Out"],["Cat Stevens","Teaser and the Firecat"],["Cream","Strange Brew: The Very Best of Cream"],["Creedence Clearwater Revival","Chronicle"],["Crosby, Stills, Nash and Young","So Far"],["Deep Purple","Machine Head"],["Doors, The","The Doors"],["Doors, The","L.A. Woman"],["Fleetwood Mac","Rumours"],["Grateful Dead","What a Long Strange Trip It's Been"],["Guaraldi, Vince","A Charlie Brown Christmas"],["Heart","Dreamboat Annie"],["Jefferson Airplane","Surrealistic Pillow"],["Joplin, Janis","Greatest Hits"],["Judas Priest","Sin After Sin"],["Judas Priest","Stained Class"],["KISS","Alive!"],["KISS","Destroyer"],["Mitchell, Joni","Clouds"],["Pink Floyd","Animals (2018 remix)"],["Pink Floyd","At Pompeii Remastered"],["Pink Floyd","Dark Side of the Moon"],["Pink Floyd","The Final Cut"],["Pink Floyd","The Wall"],["Pink Floyd","Wish You Were Here"],["Rolling Stones, The","Hot Rocks"],["Rolling Stones, The","Sticky Fingers"],["Santana","Abraxas"],["Simon and Garfunkel","Greatest Hits"],["Sondheim, Stephen","Sweeney Todd Original Cast"],["Steely Dan","Can't Buy a Thrill"],["Steely Dan","Greatest Hits 72-78"],["Steve Miller","Greatest Hits"],["Who, The","Tommy"],["Who, The","Who's Next"],["Funkadelic","Maggot Brain"],["James Brown","20 All-Time Greatest Hits"],["Pink Floyd","Meddle"],["Talking Heads","Speaking in Tongues"]];
+var IW=[["Neil Young","Harvest"],["Led Zeppelin","IV"],["Hendrix, Jimi","Are You Experienced"],["Steely Dan","Aja"],["Rolling Stones, The","Exile on Main St."],["Tom Petty and the Heartbreakers","Damn the Torpedoes"],["Dire Straits","Brothers in Arms"],["Eagles, The","Hotel California"],["Springsteen, Bruce","Born to Run"],["Elton John","Goodbye Yellow Brick Road"],["Coltrane, John","A Love Supreme"],["Miles Davis","Kind of Blue"],["Ozzy Osbourne","Blizzard of Ozz"],["Rainbow","Rising"],["Talking Heads","Remain in Light"]];
+var PRESETS=["Feeling low-key","Fire guitar solo","Epic and cinematic","Late night melancholy","Upbeat cooking music","Dark and heavy"];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+function toObj(arr){return arr.map(function(r){return{artist:r[0],album:r[1]};});}
+var col=loadData("rr-col",toObj(IC));
+var wl=loadData("rr-wl",toObj(IW));
+
+function loadData(key,fallback){
+  try{var v=localStorage.getItem(key);return v?JSON.parse(v):fallback;}catch(e){return fallback;}
+}
+function saveData(key,val){
+  try{localStorage.setItem(key,JSON.stringify(val));return true;}catch(e){return false;}
+}
+
+// ── Sorting ───────────────────────────────────────────────────────────────────
+function sk(a){return a.replace(/^(The |A |An )/i,"").replace(/,$/,"").trim().toLowerCase();}
+function srt(items){return items.slice().sort(function(a,b){return sk(a.artist).localeCompare(sk(b.artist));});}
+function grp(items){
+  var s=srt(items),g={};
+  s.forEach(function(x){if(!g[x.artist])g[x.artist]=[];g[x.artist].push(x.album);});
+  return g;
+}
+function lcmp(a,b){return a.toLowerCase()===b.toLowerCase();}
+function inL(list,artist,album){return list.some(function(x){return lcmp(x.artist,artist)&&lcmp(x.album,album);});}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+var toastTimer=null;
+function showToast(msg,ok){
+  var t=document.getElementById("toast");
+  t.textContent=(ok?"✓ ":"✕ ")+msg;
+  t.className=ok?"ok":"err";
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.className="";},3500);
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────────
+function handleSave(){
+  var btn=document.getElementById("save-btn");
+  btn.textContent="⏳ Saving…";
+  var ok1=saveData("rr-col",col);
+  var ok2=saveData("rr-wl",wl);
+  if(ok1&&ok2){
+    btn.style.background="#2a5";
+    btn.textContent="✓ Saved!";
+    showToast(col.length+" records and "+wl.length+" wish list items saved",true);
+    setTimeout(function(){btn.style.background="";btn.textContent="💾 Save";},3500);
+  } else {
+    btn.textContent="💾 Save";
+    showToast("Save failed — localStorage may be blocked",false);
+  }
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function updateSub(){
+  document.getElementById("sub").textContent=col.length+" records in the crate \u00b7 "+wl.length+" on the list";
+  document.getElementById("ch").textContent=col.length+" Records in the Crate";
+  document.getElementById("wh").textContent=wl.length+" Albums on the List";
+}
+
+function mk(tag,cls,txt){
+  var e=document.createElement(tag);
+  if(cls)e.className=cls;
+  if(txt!==undefined)e.textContent=txt;
+  return e;
+}
+function mkSpin(){
+  var r=mk("div","sr");r.appendChild(mk("div","sp"));r.appendChild(mk("span","st","Consulting the crates\u2026"));return r;
+}
+
+function renderCol(){
+  var c=document.getElementById("cl");c.innerHTML="";
+  var g=grp(col);
+  Object.keys(g).forEach(function(artist){
+    var bl=mk("div","ab");bl.appendChild(mk("div","an",artist));
+    g[artist].forEach(function(album){
+      var row=mk("div","ar");row.appendChild(mk("span","ad","\u2013"));
+      var btn=mk("button","abtn",album);
+      btn.addEventListener("click",(function(a,al){return function(){openModal(a,al);};})(artist,album));
+      row.appendChild(btn);bl.appendChild(row);
+    });
+    c.appendChild(bl);
+  });
+  updateSub();
+}
+
+function renderWL(){
+  var c=document.getElementById("wl");c.innerHTML="";
+  var g=grp(wl);
+  Object.keys(g).forEach(function(artist){
+    var bl=mk("div","ab");bl.appendChild(mk("div","an",artist));
+    g[artist].forEach(function(album){
+      var wrap=mk("div"),row=mk("div","ar");
+      row.appendChild(mk("span","ad","\u2013"));
+      var btn=mk("button","abtn",album);
+      btn.addEventListener("click",(function(a,al){return function(){openModal(a,al);};})(artist,album));
+      row.appendChild(btn);wrap.appendChild(row);
+      var wa=mk("div","wa");
+      var gi=mk("button","bs","\u2713 I got it");
+      gi.addEventListener("click",(function(a,al){return function(){moveToCol(a,al);};})(artist,album));
+      var rm=mk("button","bs bg2","\u2715 Remove");
+      rm.addEventListener("click",(function(a,al){return function(){removeWL(a,al);};})(artist,album));
+      wa.appendChild(gi);wa.appendChild(rm);wrap.appendChild(wa);bl.appendChild(wrap);
+    });
+    c.appendChild(bl);
+  });
+  updateSub();
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+function removeWL(a,al){wl=wl.filter(function(x){return !(lcmp(x.artist,a)&&lcmp(x.album,al));});renderWL();}
+function moveToCol(a,al){
+  wl=wl.filter(function(x){return !(lcmp(x.artist,a)&&lcmp(x.album,al));});
+  if(!inL(col,a,al))col.push({artist:a,album:al});
+  renderCol();renderWL();
+}
+
+function toggleAdd(){
+  var f=document.getElementById("add-form"),b=document.getElementById("add-bar");
+  var o=f.classList.toggle("open");
+  b.textContent=o?"\u2715 Cancel":"+ Add";
+  if(o)document.getElementById("aa").focus();
+}
+
+function submitAdd(){
+  var a=document.getElementById("aa").value.trim();
+  var al=document.getElementById("ab").value.trim();
+  var t=document.getElementById("at").value;
+  if(!a||!al)return;
+  if(t==="collection"){
+    col=col.filter(function(x){return !(lcmp(x.artist,a)&&lcmp(x.album,al));});
+    col.push({artist:a,album:al});
+    wl=wl.filter(function(x){return !(lcmp(x.artist,a)&&lcmp(x.album,al));});
+  } else {
+    if(!inL(wl,a,al))wl.push({artist:a,album:al});
+  }
+  renderCol();renderWL();
+  document.getElementById("aa").value="";
+  document.getElementById("ab").value="";
+  toggleAdd();
+}
+
+function switchTab(name,btn){
+  document.querySelectorAll(".tc").forEach(function(e){e.classList.remove("active");});
+  document.querySelectorAll(".tab").forEach(function(e){e.classList.remove("active");});
+  document.getElementById("tab-"+name).classList.add("active");
+  btn.classList.add("active");
+  if(name==="suggestions"&&document.getElementById("gr").querySelector(".ph"))fetchGeneral();
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openModal(artist,album){
+  document.getElementById("modal-artist").textContent=artist;
+  document.getElementById("modal-album").textContent=album;
+  var bd=document.getElementById("modal-body");bd.textContent="";bd.appendChild(mkSpin());
+  document.getElementById("modal-overlay").classList.add("open");
+  callClaude("Describe the album "+album+" by "+artist+" in 3-4 sentences. Cover the sound, standout tracks, and why a vinyl collector would love it. Plain text only.")
+    .then(function(t){bd.textContent=t;}).catch(function(){bd.textContent="Could not load details.";});
+}
+function closeModal(){document.getElementById("modal-overlay").classList.remove("open");}
+
+// ── Claude API ────────────────────────────────────────────────────────────────
+async function callClaude(prompt){
+  var res=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
+  });
+  var d=await res.json();
+  return d.content&&d.content[0]?d.content[0].text:"No response.";
+}
+
+// ── Suggestions ───────────────────────────────────────────────────────────────
+async function fetchGeneral(){
+  var p=document.getElementById("gr");p.textContent="";p.appendChild(mkSpin());
+  var cs=col.map(function(c){return c.artist+": "+c.album;}).join(", ");
+  var ws=wl.map(function(w){return w.artist+": "+w.album;}).join(", ");
+  var t=await callClaude("You are a vinyl expert. Collection: "+cs+". Wish list: "+ws+". Suggest 10-15 albums to buy next organized by theme. 1-2 sentences each. Plain text only.");
+  p.textContent=t;
+}
+
+async function fetchTargeted(){
+  var q=document.getElementById("ti").value.trim();if(!q)return;
+  var p=document.getElementById("tr");p.textContent="";p.appendChild(mkSpin());
+  var cs=col.map(function(c){return c.artist+": "+c.album;}).join(", ");
+  var ws=wl.map(function(w){return w.artist+": "+w.album;}).join(", ");
+  var t=await callClaude("Vinyl expert. Collector asks: "+q+". Collection: "+cs+". Wish list: "+ws+". Suggest 5-8 albums not already owned or listed. Return ONLY a valid JSON array. Schema: [{\"artist\":\"...\",\"album\":\"...\",\"reason\":\"one sentence\"}]");
+  p.textContent="";
+  try{
+    var m=t.match(/\[[\s\S]*?\]/);
+    if(!m)throw new Error();
+    var items=JSON.parse(m[0]).filter(function(x){return x&&x.artist&&x.album;});
+    if(!items.length){p.appendChild(mk("div","ph","No results - try rephrasing."));return;}
+    var lbl=mk("div");lbl.style.cssText="font-size:.6rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:.6rem";
+    lbl.textContent=items.length+" suggestions \u2014 tap to add to wish list";p.appendChild(lbl);
+    items.forEach(function(item){
+      var card=mk("div","sc"),info=mk("div","si");
+      info.appendChild(mk("div","sar",item.artist));
+      info.appendChild(mk("div","sal",item.album));
+      info.appendChild(mk("div","srs",item.reason||""));
+      card.appendChild(info);
+      var act=mk("div","sac");
+      if(inL(col,item.artist,item.album)){act.appendChild(mk("span","bdo","IN COLLECTION"));}
+      else if(inL(wl,item.artist,item.album)){act.appendChild(mk("span","bdw","\u2713 ON WISH LIST"));}
+      else{
+        var wb=mk("button","bw","+ Wish List");
+        wb.addEventListener("click",(function(a,al,b){return function(){
+          if(!inL(wl,a,al)){wl.push({artist:a,album:al});renderWL();}
+          b.textContent="\u2713 Added";b.disabled=true;b.style.opacity=".5";
+        };})(item.artist,item.album,wb));
+        act.appendChild(wb);
+      }
+      card.appendChild(act);p.appendChild(card);
+    });
+  }catch(e){p.appendChild(mk("div","ph","Could not parse response. Try again."));}
+}
+
+// ── Mood ──────────────────────────────────────────────────────────────────────
+function buildPresets(){
+  var c=document.getElementById("presets");
+  PRESETS.forEach(function(pr){
+    var b=mk("button","pb",pr);
+    b.addEventListener("click",function(){
+      document.querySelectorAll(".pb").forEach(function(x){x.classList.remove("active");});
+      b.classList.add("active");
+      document.getElementById("mi").value=pr;
+    });
+    c.appendChild(b);
+  });
+}
+
+async function fetchMood(){
+  var mood=document.getElementById("mi").value.trim();if(!mood)return;
+  var p=document.getElementById("mr");p.textContent="";p.appendChild(mkSpin());
+  var cs=col.map(function(c){return c.artist+": "+c.album;}).join(", ");
+  var t=await callClaude("You are a vinyl DJ. Listener owns only: "+cs+". They say: "+mood+". Recommend 2-3 albums and 1-2 specific songs from their collection only. Explain why each fits. Enthusiastic. Plain text only.");
+  p.textContent=t;
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
+document.getElementById("aa").addEventListener("keydown",function(e){if(e.key==="Enter")submitAdd();});
+document.getElementById("ab").addEventListener("keydown",function(e){if(e.key==="Enter")submitAdd();});
+document.getElementById("ti").addEventListener("keydown",function(e){if(e.key==="Enter")fetchTargeted();});
+document.getElementById("mi").addEventListener("keydown",function(e){if(e.key==="Enter")fetchMood();});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderCol();
+renderWL();
+buildPresets();
+</script>
+</body>
+</html>
