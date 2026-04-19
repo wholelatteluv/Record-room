@@ -287,7 +287,7 @@ function switchTab(name,btn){
   document.querySelectorAll(".tab").forEach(function(e){e.classList.remove("active");});
   document.getElementById("tab-"+name).classList.add("active");
   btn.classList.add("active");
-  if(name==="suggestions"&&document.getElementById("gr").querySelector(".ph"))fetchGeneral();
+
 }
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
@@ -312,12 +312,15 @@ async function callClaude(prompt){
 }
 
 // ── Suggestions ───────────────────────────────────────────────────────────────
+var genFetched=false;
 async function fetchGeneral(){
+  genFetched=false;
   var p=document.getElementById("gr");p.textContent="";p.appendChild(mkSpin());
   var cs=col.map(function(c){return c.artist+": "+c.album;}).join(", ");
   var ws=wl.map(function(w){return w.artist+": "+w.album;}).join(", ");
   var t=await callClaude("You are a vinyl expert. Collection: "+cs+". Wish list: "+ws+". Suggest 10-15 albums to buy next organized by theme. 1-2 sentences each. Plain text only.");
   p.textContent=t;
+  genFetched=true;
 }
 
 async function fetchTargeted(){
